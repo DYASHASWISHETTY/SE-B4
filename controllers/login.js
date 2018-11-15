@@ -17,7 +17,7 @@ var resUser = {};
  */
 const fetchDriverTrips = (userdID) => {
     const clientTrip = new pg.Client(config);
-    const futureTripQuery = `SELECT Route_no,No_of_stu,Bus_no,timing,trip_date from Trip where Trip.driver_id='${userdID}'`;
+    const futureTripQuery = `SELECT Route_no,No_of_stu,Bus_no,timing,trip_date from Trip where Trip.driver_id='${userdID}' AND STATUS=false`;
     return new Promise((resolve, reject) => {
         clientTrip.connect()
         .then(() => 
@@ -65,11 +65,11 @@ const fetchCurrentTrips = (userUSN) => {
                     console.log(`Fetch error CurrentTrip: ${err}`);
                 })
                 .then(async () => {
-                    var geocoder = NodeGeocoder(options);
-                        if(resUser.CurrentTrip != null && resUser.CurrentTrip.getcurentlocation != null) {
-                            var location = await geocoder.reverse({lat:resUser.CurrentTrip.getcurentlocation[0], lon:resUser.CurrentTrip.getcurentlocation[1]})
-                            resUser.CurrentTrip.getcurentlocation = location[0].formattedAddress;
-                        }
+                    //var geocoder = NodeGeocoder(options);
+                        //if(resUser.CurrentTrip != null && resUser.CurrentTrip.getcurentlocation != null) {
+                            //var location = await geocoder.reverse({lat:resUser.CurrentTrip.getcurentlocation[0], lon:resUser.CurrentTrip.getcurentlocation[1]})
+                          //  resUser.CurrentTrip.getcurentlocation = location[0].formattedAddress;
+                        //}
                     resolve(resUser.CurrentTrip);
                     clientTrip.end();
                 })
@@ -110,13 +110,14 @@ const fetchFutureTrips = (userUSN) => {
                     console.log(`Fetch error: ${err}`);
                 })
                 .then(async () => {
+                    /*
                     var geocoder = NodeGeocoder(options);
                     for(var tripIndex=0; tripIndex < resUser.futureTrips.length; tripIndex++) {
                         if(resUser.futureTrips[tripIndex].getlocation[0] != '') {
                             var location = await geocoder.reverse({lat:resUser.futureTrips[tripIndex].getlocation[0], lon:resUser.futureTrips[tripIndex].getlocation[1]})
                                 resUser.futureTrips[tripIndex].getlocation = location[0].formattedAddress;
                         }
-                    }
+                    }*/
                     resolve(resUser.futureTrips);
                     clientTrip.end();
                 })

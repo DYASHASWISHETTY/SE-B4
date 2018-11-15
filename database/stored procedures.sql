@@ -51,9 +51,46 @@ WHERE USN_UID.UID = Chan_time.UID AND USN_UID.USN = _USN AND Chan_time.trip_id =
 INSERT INTO Chan_Time(UID, trip_id , timing)
 VALUES
 ((SELECT USN_UID.UID FROM USN_UID WHERE USN = _USN), _trip_id, _timing);
+IF(SELECT COUNT(trip_date) from fut_trip where trip_date IN 
+(SELECT trip_date FROM Fut_trip WHERE trip_id =_trip_id) AND timing = '12:45:00')=0
+THEN INSERT INTO Fut_trip(drop_pick,trip_date,timing)
+VALUES 
+(false,(SELECT trip_date FROM Fut_trip WHERE trip_id = _trip_id),'12:45:00');
+END IF;
 END;
 $$ LANGUAGE 'plpgsql' ;
 
+
+---SELECT changeTime('01FB15ECS069',1,'12:45:00')
+
+
+
+--adding future trips
+
+CREATE OR REPLACE FUNCTION addFutTrip()
+RETURNS VOID AS $$
+DECLARE lastDate date;
+DECLARE timeadd time;
+BEGIN
+SELECT trip_date INTO lastDate FROM Fut_trip ORDER BY "trip_date" DESC LIMIT 1 ;
+IF(SELECT count(timing) FROM Fut_trip WHERE trip_date = lastDate)=1 THEN
+	timeadd:= '15:30:00';
+	INSERT INTO Fut_trip(drop_pick,trip_date,timing) VALUES
+	(false, (SELECT ((date (lastDate) ):: timestamp::date)), timeadd);
+ELSE
+	timeadd:= '7:00:00';
+IF(select extract(dow from  date (lastDate)))!=5 THEN 
+INSERT INTO Fut_trip(drop_pick,trip_date,timing) VALUES
+(false, (SELECT ((date (lastDate) +interval '1 day' ):: timestamp::date)), timeadd);
+ELSE
+INSERT INTO Fut_trip(drop_pick,trip_date,timing) VALUES
+(false, (SELECT ((date (lastDate) +interval '3 day' ):: timestamp::date)), timeadd);
+END IF;
+END IF;
+END;
+$$ LANGUAGE 'plpgsql'; 
+
+SELECT addFutTrip();
 
 
 
@@ -172,7 +209,6 @@ $$ LANGUAGE plpgsql;
 
 --SELECT getPickUpLocation('01FB15ECS081'); 
 
-
 CREATE OR REPLACE FUNCTION completedTrip(_Driver_id VARCHAR)
 RETURNS VOID AS $$
 BEGIN
@@ -180,20 +216,43 @@ UPDATE Trip SET status = TRUE WHERE Driver_id = _Driver_id;
 IF(SELECT COUNT(Status) FROM Trip WHERE Status = false)=0 THEN
 DELETE FROM Chan_time WHERE trip_id IN 
 (SELECT DISTINCT trip_id  FROM trip);
-DELETE FROM Chan_loc WHERE tripSELECT COUNT(Chan_loc.UID)
-FROM Chan_loc  INNER JOIN USN_UID
-ON USN_UID.UID = Chan_loc.UID
-WHERE USN = _USN AND trip_id  IN (SELECT DISTINCT trip_id FROM Trip)_id IN 
+DELETE FROM Chan_loc WHERE trip_id IN 
 (SELECT DISTINCT trip_id  FROM trip);
 DELETE FROM Cancel_trip WHERE trip_id IN 
 (SELECT DISTINCT trip_id  FROM trip);
 DELETE FROM Trip ;
+PERFORM addFutTrip();
 END IF;
 END;
 $$ LANGUAGE 'plpgsql';
 
+
 -- SELECT completedTrip('PESDR1');
 
+
+--ADDING TO FUTURE TRIPS
+CREATE OR REPLACE FUNCTION addFutTrip()
+RETURNS VOID AS $$
+DECLARE lastDate date;
+DECLARE timeadd time;
+BEGIN
+SELECT trip_date INTO lastDate FROM Fut_trip ORDER BY "trip_date" DESC LIMIT 1 ;
+IF(SELECT count(timing) FROM Fut_trip WHERE trip_date = lastDate)=1 THEN
+	timeadd:= '15:30:00';
+	INSERT INTO Fut_trip(drop_pick,trip_date,timing) VALUES
+	(false, (SELECT ((date (lastDate) ):: timestamp::date)), timeadd);
+ELSE
+	timeadd:= '7:00:00';
+IF(select extract(dow from  date (lastDate)))!=5 THEN 
+INSERT INTO Fut_trip(drop_pick,trip_date,timing) VALUES
+(false, (SELECT ((date (lastDate) +interval '1 day' ):: timestamp::date)), timeadd);
+ELSE
+INSERT INTO Fut_trip(drop_pick,trip_date,timing) VALUES
+(false, (SELECT ((date (lastDate) +interval '3 day' ):: timestamp::date)), timeadd);
+END IF;
+END IF;
+END;
+$$ LANGUAGE 'plpgsql'; 
 
 
 

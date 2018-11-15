@@ -11,6 +11,13 @@ function initMap(e) {
         console.log(e);
         calculateAndDisplayRoute(directionsService, directionsDisplay, e);
     });
+
+    document.getElementById('completedTrip').addEventListener('click',function(){
+        console.log(`In public`);
+        driverID = document.getElementById('driverId').innerHTML;
+        console.log(`${driverID}`);
+        completedTrip(driverID);
+    });
 }
 
 function displayError(err) {
@@ -87,4 +94,27 @@ function getLocation() {
     else {
         alert("Geolocation is not supported by this browser.");
     }
+}
+
+
+
+
+function completedTrip(driverID) {
+   
+    data = {driverID : driverID};
+    url = '/completedTrip';
+    $.ajax({
+        url:url,
+        data:data,
+        method:'PUT',
+        success:performAction,
+        error:displayError
+    });
+    
+}
+
+
+function performAction(resHTML){
+    html = $.parseHTML(resHTML, true);
+    $('body').html(html);
 }

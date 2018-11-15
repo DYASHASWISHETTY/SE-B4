@@ -10,10 +10,10 @@
 		$ psql
 
 	4.Now create the database 'Transport_Mangement_System' by typing the following command
-		CREATE DATABASE transport_management_system ;
+		CREATE DATABASE tms;
 
 	5. Type the following command to connect/select this database
-		# \c transport_management_system
+		# \c tms
 	
 	6. To Create the relations locallcy in the system run the following queries in your system
 
@@ -22,7 +22,7 @@
 	After creating the database(After step 4) open the terminal where this file is located
 
 	1. Connect to the relevant database eg.
-		sudo -u postgres psql transport_management_system
+		sudo -u postgres psql tms
 	2.Then run
 		\i database.sql
 		\i insert_dummy_val.sql
@@ -86,7 +86,6 @@ CREATE TABLE Trip (
 	 trip_date DATE,
 	 status BOOLEAN DEFAULT FALSE,
 	 route_data varchar
-
 );
 
 CREATE TABLE Stu_Trip_Data (

@@ -30,4 +30,30 @@ const getRoutePointsById =  (driverId) => {
     });
 }
 
-module.exports = { getRoutePointsById };
+const completedTrip =  (driver) => {
+    var resUser ={};
+    const client = new pg.Client(config);
+    return new Promise((resolve, reject) => {
+        client.connect()
+            .then(() => {
+               var completedTripQuery= `SELECT completedTrip('${driver.driverID}');`;
+                client.query(completedTripQuery)
+                    .then(()=>{ 
+                        resUser.driverTrips = [];
+                        client.end();
+                        resolve(resUser);
+                        })
+                
+                    .catch(err => {
+                        console.log(`Fetch error: ${err}`);
+                        reject(err);
+                    });
+            })
+            .catch(err => {
+               console.log(`Connection error: ${err}`);
+               reject(err);
+           });
+    });
+}
+
+module.exports = { getRoutePointsById ,completedTrip};

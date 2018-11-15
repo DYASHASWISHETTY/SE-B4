@@ -1,7 +1,7 @@
 // getRoutePointsById
 const express = require('express');
 const driverRouter = express.Router();
-const { getRoutePointsById } = require('../controllers/driver');
+const { getRoutePointsById, completedTrip } = require('../controllers/driver');
 
 driverRouter.get('/getRoutePointsById', (req, res, next) => {
     getRoutePointsById(req.query.id)
@@ -15,4 +15,22 @@ driverRouter.get('/getRoutePointsById', (req, res, next) => {
 });
 
 
-module.exports = driverRouter ;
+driverRouter.put('/completedTrip', (req, res, next) => {
+    completedTrip(req.body)
+    .then(responseUser => {
+        if(responseUser != null) {
+            res.render('driver/driverui.html',{
+            user:responseUser
+            })
+            
+        }
+        else {
+            exist= false;
+            res.send(exist).status(204);
+        }
+    })
+    .catch(err => console.log(err));
+
+});
+
+module.exports = driverRouter;
